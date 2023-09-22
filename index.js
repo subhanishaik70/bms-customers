@@ -14,6 +14,12 @@ mongoose.connect('mongodb://localhost:27017/mern-app').then((res) => {
     console.log('mongodb connected')
 }).catch(e => {
     console.log('mongodb failed to connect');
+});
+
+app.get('/',async(req,res)=>{
+    res.json({
+        status: 'user created successfully'
+    })
 })
 
 app.post('/customer/register', async (req, res) => {
