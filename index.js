@@ -60,5 +60,5 @@ app.post('/customer/login', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Application running on port ${port}`);
+    console.log(`Application running1 on port ${port}`);
 });
