@@ -10,11 +10,25 @@ const port = 5657;
 
 
 
-mongoose.connect('mongodb://localhost:27017/mern-app').then((res) => {
-    console.log('mongodb connected')
-}).catch(e => {
-    console.log('mongodb failed to connect');
-});
+// mongoose.connect('mongodb://localhost:27017/mern-app').then((res) => {
+//     console.log('mongodb connected')
+// }).catch(e => {
+//     console.log('mongodb failed to connect');
+// });
+
+const uri='mongodb+srv://subhanishaikshaik70:subhani123@customerinfo.eejhgke.mongodb.net/?retryWrites=true&w=majority';
+// Connect to MongoDB Atlas
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  
+  // Check for a successful connection
+  const db = mongoose.connection;
+  db.on('error', console.error.bind(console, 'Connection error:'));
+  db.once('open', () => {
+    console.log('Connected to MongoDB Atlas');
+  });
 
 app.get('/',async(req,res)=>{
     res.json({
@@ -28,7 +42,7 @@ app.post('/customer/register', async (req, res) => {
     try {
         let data = await User.create({
             name: req.body.name,
-            name: req.body.company,
+            company: req.body.company,
             username: req.body.username,
             password:req.body.password
         });
