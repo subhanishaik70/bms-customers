@@ -31,37 +31,52 @@ mongoose.connect(uri, {
   });
 
 app.get('/',async(req,res)=>{
-    res.json({
-        status: 'user created successfully'
+    try {
+       let users=await User.find();
+       res.json({
+        users: users
     })
+    }catch(e){
+        console.log(e,'error while fetching userdata');
+        res.json({e:'error while fetching userData'});
+    }  
 })
 
 app.post('/customer/register', async (req, res) => {
-    console.log(req.body, 'got it');
-
+    let {email,username}=req.body;
     try {
-        let data = await User.create({
+        let userExist = await User.findOne({ $or: [{ email }, { username }] });
+        if(userExist){
+            return res.status(400).json({ message: 'User already exists!' });
+        }
+        const data = await User.create({
             name: req.body.name,
-            company: req.body.company,
+            email: req.body.email,
             username: req.body.username,
-            password:req.body.password
+            password:req.body.password,
+            country:req.body.country,
+            state:req.body.state,
+            dob:req.body.dob,
+            address:req.body.address,
+            contactNo:req.body.contactNo,
+            accountType:req.body.accountType,
+            branchName:req.body.branchName,
+            initialDepositAmount:req.body.initialDepositAmount,
+            identificationProofType:req.body.identificationProofType,
+            identificationDocumentNo:req.body.identificationDocumentNo
         });
-        console.log(data, 'data');
         res.json({
-            status: 'user created successfully'
+            status: 'user created successfully!'
         })
-
     } catch (e) {
-        console.log(e, 'got excepton');
         res.json({
             status: 'error',
-            error: 'user already existed'
+            error: 'Exception while creating User!'
         })
     }
 });
 
 app.post('/customer/login', async (req, res) => {
-    console.log(req.body,'got it');
     let user = await User.findOne({
         username: req.body.username,
         password: req.body.password
@@ -73,7 +88,7 @@ app.post('/customer/login', async (req, res) => {
         })
     } else {
         res.send({
-            status: 'invalid user!try again',
+            status: 'User Details are not found!',
             user: false
         })
     }

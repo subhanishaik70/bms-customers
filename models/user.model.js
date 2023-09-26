@@ -2,11 +2,48 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
     name: {
         type: 'string',
-        required: false
+        required: true
     },
-    company: {
+    address:{
+        type:'string',
+        required:true
+    },
+    country:{
+        type:'string',
+        required:true
+    },
+    dob:{
+        type:'string',
+        required:true
+    },
+    contactNo:{
+        type:'string',
+        required:true
+    },
+    accountType:{
+        type:'string',
+        required:true
+    },
+    branchName:{
+        type:'string',
+        required:true
+    },
+    initialDepositAmount:{
+        type:'string',
+        required:true
+    },
+    identificationProofType:{
+        type:'string',
+        required:true
+    },
+    identificationDocumentNo:{
+        type:'string',
+        required:true
+    },
+    email: {
         type: 'string',
-        required: false
+        required: true,
+        unique:true
     },
     username: {
         type: 'string',
