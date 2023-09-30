@@ -53,7 +53,18 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: 'string',
         required: true
-    }
+    },
+    accountNo:{
+        type: 'string',
+        required: true  
+    },
+    accountBalance:{
+        type:'string',
+    },
+    loanData: {
+        type: Array,
+        default: [],
+      },
 }, {
     collection: 'user-data'
 });

@@ -16,54 +16,62 @@ const port = 5657;
 //     console.log('mongodb failed to connect');
 // });
 
-const uri='mongodb+srv://subhanishaikshaik70:subhani123@customerinfo.eejhgke.mongodb.net/?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://subhanishaikshaik70:subhani123@customerinfo.eejhgke.mongodb.net/?retryWrites=true&w=majority';
 // Connect to MongoDB Atlas
 mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  });
-  
-  // Check for a successful connection
-  const db = mongoose.connection;
-  db.on('error', console.error.bind(console, 'Connection error:'));
-  db.once('open', () => {
-    console.log('Connected to MongoDB Atlas');
-  });
+});
 
-app.get('/',async(req,res)=>{
+// Check for a successful connection
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'Connection error:'));
+db.once('open', () => {
+    console.log('Connected to MongoDB Atlas');
+});
+
+app.get('/', async (req, res) => {
     try {
-       let users=await User.find();
-       res.json({
-        users: users
-    })
-    }catch(e){
-        console.log(e,'error while fetching userdata');
-        res.json({e:'error while fetching userData'});
-    }  
+        let users = await User.find();
+        res.json({
+            users: users
+        })
+    } catch (e) {
+        console.log(e, 'error while fetching userdata');
+        res.json({ e: 'error while fetching userData' });
+    }
 })
 
 app.post('/customer/register', async (req, res) => {
-    let {email,username}=req.body;
+    let { email, username } = req.body;
     try {
         let userExist = await User.findOne({ $or: [{ email }, { username }] });
-        if(userExist){
+        if (userExist) {
             return res.status(400).json({ message: 'User already exists!' });
         }
+
+        // Generate a new ObjectId
+        const createNewAccountNO = mongoose.Types.ObjectId();
+        // Extract the first 10 characters of the ObjectId
+        const newAccountNo = createNewAccountNO.str.substring(0, 10);
+
         const data = await User.create({
             name: req.body.name,
             email: req.body.email,
             username: req.body.username,
-            password:req.body.password,
-            country:req.body.country,
-            state:req.body.state,
-            dob:req.body.dob,
-            address:req.body.address,
-            contactNo:req.body.contactNo,
-            accountType:req.body.accountType,
-            branchName:req.body.branchName,
-            initialDepositAmount:req.body.initialDepositAmount,
-            identificationProofType:req.body.identificationProofType,
-            identificationDocumentNo:req.body.identificationDocumentNo
+            password: req.body.password,
+            country: req.body.country,
+            state: req.body.state,
+            dob: req.body.dob,
+            address: req.body.address,
+            contactNo: req.body.contactNo,
+            accountType: req.body.accountType,
+            branchName: req.body.branchName,
+            initialDepositAmount: req.body.initialDepositAmount,
+            identificationProofType: req.body.identificationProofType,
+            identificationDocumentNo: req.body.identificationDocumentNo,
+            accountNo: newAccountNo,
+            accountBalance: req.body.initialDepositAmount,
         });
         res.json({
             status: 'user created successfully!'
