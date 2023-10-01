@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
-const User = require("./models/user.model")
+const User = require("./models/user.model");
+const { json } = require('body-parser');
+const { ObjectId } = mongoose.Types;
 
 app.use(cors());
 app.use(express.json());
@@ -50,11 +52,14 @@ app.post('/customer/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists!' });
         }
 
-        // Generate a new ObjectId
-        const createNewAccountNO = mongoose.Types.ObjectId();
-        // Extract the first 10 characters of the ObjectId
-        const newAccountNo = createNewAccountNO.str.substring(0, 10);
-
+        function generateNumericUniqueID() {
+            const timestamp = new Date().getTime(); // Get the current timestamp
+            const randomNum = Math.floor(Math.random() * 10000); // Generate a random number (you can adjust the range)
+            return parseInt(`${timestamp}${randomNum}`, 10); // Combine timestamp and random number
+          }
+          
+          // Example usage
+          const uniqueID = new String(generateNumericUniqueID()).substring(0,8) ;
         const data = await User.create({
             name: req.body.name,
             email: req.body.email,
@@ -70,13 +75,15 @@ app.post('/customer/register', async (req, res) => {
             initialDepositAmount: req.body.initialDepositAmount,
             identificationProofType: req.body.identificationProofType,
             identificationDocumentNo: req.body.identificationDocumentNo,
-            accountNo: newAccountNo,
+            accountNo: uniqueID,
             accountBalance: req.body.initialDepositAmount,
+            loanData:req.body.loanData
         });
         res.json({
             status: 'user created successfully!'
         })
     } catch (e) {
+        console.log(e, 'got it');
         res.json({
             status: 'error',
             error: 'Exception while creating User!'
@@ -100,6 +107,52 @@ app.post('/customer/login', async (req, res) => {
             user: false
         })
     }
+});
+
+app.post('/customer/applyLoan', async (req, res) => {
+    const filter = { accountNo: req.body.accountNo };
+    const updateLoan = {$push: { loanData:req.body.loanData} }
+    async function updateUserData() {
+        try {
+          const updatedUser = await User.findOneAndUpdate(
+            filter,
+            updateLoan,
+            { new: true }
+          );
+          if (!updatedUser) {
+            return {status:"usern not found"};
+          }
+          res.send(updatedUser)
+          
+        } catch (error) {
+          console.error('Error updating user details:', error);
+        }
+      } 
+     updateUserData();
+   
+});
+
+app.post('/customer/depositwithdraw', async (req, res) => {
+    const filter = { accountNo: req.body.accountNo };
+    const updatedData = { $set: { accountBalance:req.body.accountBalance}};
+
+    async function updateUserData() {
+        try {
+          const updatedUser = await User.findOneAndUpdate(
+            filter,
+            updatedData,
+            { new: true }
+          );
+          if (!updatedUser) {
+            return {status:"user User accountBalance updated"};
+          }
+          res.send(updatedUser)
+        } catch (error) {
+          console.error('Error updating user details:', error);
+        }
+      } 
+     updateUserData();
+   
 });
 
 app.listen(port, () => {
